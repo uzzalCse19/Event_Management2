@@ -28,7 +28,7 @@ from Event.views import home,event_list
 from core.views import no_permission
 from django.conf import settings
 from django.conf.urls.static import static
-
+from debug_toolbar.toolbar import debug_toolbar_urls
 
 urlpatterns = [
     path('',event_list, name='home'),
@@ -36,7 +36,7 @@ urlpatterns = [
     path('events/',include('Event.urls')),
     path('users/',include('users.urls')),
     path('no-permission/', no_permission, name='no-permission'),
-]
+]+debug_toolbar_urls()
 
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

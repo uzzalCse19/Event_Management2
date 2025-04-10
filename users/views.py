@@ -121,7 +121,9 @@ def admin_dashboard(request):
     )
     for user in users:
         user.group_name = user.all_groups[0].name if user.all_groups else "No Group Assigned"
+    
     return render(request, 'admin/dashboard.html', {"users": users})
+
 
 
 

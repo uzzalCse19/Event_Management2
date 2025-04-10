@@ -14,7 +14,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from .forms import ParticipantUpdateForm
 from django.shortcuts import render
-from django.db.models import Count, Case, When, IntegerField
+from django.db.models import Count, Case, When, IntegerField,Prefetch
 
 
 def is_participant(user):
@@ -225,31 +225,35 @@ def delete_category(request, pk):
         return redirect('category_list')
     return render(request, 'category_confirm_delete.html', {'category': category})
 
-
 @login_required
 @permission_required("auth.view_user", login_url='no-permission')
 def participant_list(request):
-    participants = User.objects.annotate(
-        going_count=Count(
-            Case(
-                When(eventrsvp__status='going', then=1),
-                output_field=IntegerField()
-            )
-        ),
-        maybe_count=Count(
-            Case(
-                When(eventrsvp__status='maybe', then=1),
-                output_field=IntegerField()
-            )
-        ),
-        total_events=Count('eventrsvp')
-    ).order_by('-date_joined')
-
+    rsvp_qs = EventRSVP.objects.filter(status__in=['going', 'maybe'])
+    participants = User.objects.prefetch_related(
+        Prefetch('eventrsvp_set', queryset=rsvp_qs)
+        ).annotate(
+            going_count=Count(
+                Case(
+                    When(eventrsvp__status='going', then=1),
+                    output_field=IntegerField()
+                )
+            ),
+            maybe_count=Count(
+                Case(
+                    When(eventrsvp__status='maybe', then=1),
+                    output_field=IntegerField()
+                )
+            ),
+            total_events=Count('eventrsvp')
+            ).order_by('-date_joined')
+    return render(request, 'participant_list.html', {'participants': participants})
     return render(request, 'participant_list.html', {
         'participants': participants,
         'total_participants': participants.count()
     })
 
+
+ 
 @login_required
 def create_participant(request): 
     if request.method == 'POST':
