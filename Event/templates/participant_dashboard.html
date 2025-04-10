@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Participant Dashboard{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto p-6 space-y-6">
+    <h1 class="text-3xl font-bold text-gray-800">🎟️ My RSVPs</h1>
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">📅 Events You RSVP'd To</h2>
+        <ul class="space-y-4">
+            {% for rsvp in rsvps %}
+                <li class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-semibold text-lg text-gray-800">{{ rsvp.event.name }}</h3>
+                            <div class="flex items-center mt-1 text-sm text-gray-600">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                {{ rsvp.event.date|date:"F j, Y" }} at {{ rsvp.event.time|time:"g:i a" }}
+                            </div>
+                            <div class="flex items-center mt-1 text-sm text-gray-600">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                {{ rsvp.event.location }}
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col items-end">
+                            <span class="px-3 py-1 rounded-full text-sm font-medium 
+                                {% if rsvp.status == 'CONFIRMED' %}bg-green-100 text-green-800
+                                {% elif rsvp.status == 'WAITLISTED' %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ rsvp.get_status_display }}
+                            </span>
+                            <a href="{% url 'event_detail' rsvp.event.id %}" 
+                               class="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                View Event →
+                            </a>
+                        </div>
+                    </div>
+                </li>
+                {% empty %}
+                <li class="text-center py-8 text-gray-500">
+                    <svg class="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                    <p class="mt-2">You haven't RSVP'd to any events yet.</p>
+                    <a href="{% url 'event_list' %}" class="text-blue-600 hover:underline mt-1 inline-block">
+                        Browse upcoming events
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+
+
+
+                           
+
+ 
+ 

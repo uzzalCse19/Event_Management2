@@ -1,0 +1,113 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User List</title>
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+</head>
+<body class="bg-gray-50">
+    <div class="w-full px-4 sm:px-6 lg:px-8 py-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
+                <input type="text" id="searchInput" placeholder="🔍 Search by name or email..." 
+                       class="w-full md:w-2/3 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm placeholder-gray-500"/>
+    
+                <div class="w-full md:w-auto text-right">
+                    <a href="{% url 'create_participant' %}" 
+                       class="inline-block bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-150 ease-in-out shadow-md">
+                        ➕ Add Participant
+                    </a>
+                </div>
+            </div>
+            <div class="overflow-x-auto shadow-md rounded-lg border border-gray-200 bg-white">
+                <table class="mx-auto min-w-[80%] divide-y divide-gray-200 text-sm">
+                    <thead class="bg-blue-100 text-gray-700 text-xs uppercase">
+                        <tr>
+                            <th class="px-4 py-3 text-left">#</th>
+                            <th class="px-4 py-3 text-left">Username</th>
+                            <th class="px-4 py-3 text-left">Name</th>
+                            <th class="px-4 py-3 text-left">Email</th>
+                            <th class="px-4 py-3 text-left">Role</th>
+                            <th class="px-4 py-3 text-left">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-100">
+                        {% for user in users %}
+                        <tr class="hover:bg-blue-50">
+                            <td class="px-4 py-3 text-gray-700">{{ forloop.counter }}</td>
+                            <td class="px-4 py-3 font-medium">{{ user.username }}</td>
+                            <td class="px-4 py-3 font-medium">{{ user.get_full_name }}</td>
+                            <td class="px-4 py-3 text-gray-600">{{ user.email }}</td>
+                            <td class="px-4 py-3">
+                                <span class="px-2 py-1 rounded-full text-xs font-medium 
+                                    {% if user.is_superuser %}bg-purple-100 text-purple-800
+                                    {% elif 'Organizer' in user.groups.all|join:', ' %}bg-blue-100 text-blue-800
+                                    {% else %}bg-green-100 text-green-800{% endif %}">
+                                    {% if user.is_superuser %}Admin
+                                    {% elif 'Organizer' in user.groups.all|join:', ' %}Organizer
+                                    {% else %}Participant{% endif %}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 space-x-2">
+                                <a href="{% url 'assign-role' user.id %}" 
+                                   class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded-md shadow-sm text-xs">
+                                    🛠 Change Role
+                                </a>
+                                <a href="{% url 'delete_participant' user.id %}" 
+                                   class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-md shadow-sm text-xs">
+                                    🗑 Delete
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="px-4 py-6 text-center text-gray-500">
+                                🚫 No users found. 
+                                <a href="{% url 'create_participant' %}" class="text-blue-600 underline hover:text-blue-800 ml-1">
+                                    Add new?
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-6 flex justify-center">
+                <nav class="inline-flex rounded-md shadow-sm">
+                    {% if users.has_previous %}
+                    <a href="?page={{ users.previous_page_number }}" class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100">
+                        ⬅️ Previous
+                    </a>
+                    {% endif %}
+    
+                    {% for num in users.paginator.page_range %}
+                    <a href="?page={{ num }}" class="px-4 py-2 text-sm font-medium {% if users.number == num %}bg-blue-500 text-white{% else %}text-gray-500 bg-white border border-gray-300{% endif %} hover:bg-gray-100">
+                        {{ num }}
+                    </a>
+                    {% endfor %}
+                    {% if users.has_next %}
+                    <a href="?page={{ users.next_page_number }}" class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100">
+                        Next ➡️
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('searchInput').addEventListener('input', function () {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('tbody tr');
+    
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+    </script>
+    </body>
+    </html>
+
+

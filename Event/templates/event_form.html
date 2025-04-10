@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="bg-white p-6 rounded shadow max-w-2xl mx-auto">
+
+    <h1 class="text-2xl font-bold mb-4">
+        {% if form.instance.pk %}
+            Update Event
+        {% else %}
+            Create Event
+        {% endif %}
+    </h1>
+    <form method="post" enctype='multipart/form-data' class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {% csrf_token %}
+  
+        <div class="mb-4">
+            <label class="block text-gray-700">Name <span class="text-red-500">*</span></label>
+            <input type="text" name="name" value="{{ form.name.value|default:'' }}" 
+                   placeholder="Enter event name" 
+                   class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            {% if form.name.errors %}
+                <div class="text-red-500 text-sm mt-1">
+                    {{ form.name.errors }}
+                </div>
+            {% endif %}
+        </div>
+        <div class="mb-4 md:col-span-2">
+            <label class="block text-gray-700">Description</label>
+            <textarea name="description" placeholder="Enter event description" 
+                      class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" rows="4">{{ form.description.value|default:'' }}</textarea>
+            <p class="text-gray-500 text-sm mt-1">Provide a detailed description of the event.</p>
+            {% if form.description.errors %}
+                <div class="text-red-500 text-sm mt-1">
+                    {{ form.description.errors }}
+                </div>
+            {% endif %}
+        </div>
+        <div class="mb-4">
+            <label class="block text-gray-700">Date <span class="text-red-500">*</span></label>
+            <input type="date" name="date" value="{{ form.date.value|default:'' }}" 
+                   class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            {% if form.date.errors %}
+                <div class="text-red-500 text-sm mt-1">
+                    {{ form.date.errors }}
+                </div>
+            {% endif %}
+        </div>
+        <div class="mb-4">
+            <label class="block text-gray-700">Time <span class="text-red-500">*</span></label>
+            <input type="time" name="time" value="{{ form.time.value|default:'' }}" 
+                   class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            {% if form.time.errors %}
+                <div class="text-red-500 text-sm mt-1">
+                    {{ form.time.errors }}
+                </div>
+            {% endif %}
+        </div>
+ 
+        <div class="mb-4">
+            <label class="block text-gray-700">Location</label>
+            <input type="text" name="location" value="{{ form.location.value|default:'' }}" 
+                   placeholder="Enter event location" 
+                   class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+            {% if form.location.errors %}
+                <div class="text-red-500 text-sm mt-1">
+                    {{ form.location.errors }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-gray-700">Category <span class="text-red-500">*</span></label>
+            <select name="category" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <option value="" disabled {% if not form.category.value %}selected{% endif %}>Select a category</option>
+                {% for category in categories %}
+                    <option value="{{ category.id }}" 
+                            {% if form.category.value == category.id|stringformat:"s" %}selected{% endif %}>
+                        {{ category.name }}
+                    </option>
+                {% endfor %}
+            </select>
+            {% if form.category.errors %}
+                <div class="text-red-500 text-sm mt-1">
+                    {{ form.category.errors }}
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-gray-700">Event Image</label>
+            <input type="file" name="asset" 
+                   class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+            
+            {% if form.asset.errors %}
+                <div class="text-red-500 text-sm mt-1">
+                    {{ form.asset.errors }}
+                </div>
+            {% endif %}
+            
+            {% if form.instance.asset %}
+                <p class="text-sm text-gray-600 mt-2">Current image:</p>
+                <img src="{{ form.instance.asset.url }}" alt="Event image" class="w-32 h-auto mt-1 border rounded">
+            {% endif %}
+        </div>
+        
+        <div class="col-span-2 flex justify-end mt-6">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition duration-300">
+                {% if form.instance.pk %}
+                    Update
+                {% else %}
+                    Create
+                {% endif %}
+            </button>
+            <a href="{% url 'event_list' %}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded ml-2 transition duration-300">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dateInput = document.querySelector('input[name="date"]');
+        const today = new Date().toISOString().split('T')[0];
+        
+        dateInput.addEventListener('change', function() {
+            if (this.value < today) {
+                alert('Event date cannot be in the past!');
+                this.value = '';
+            }
+        });
+    });
+    </script>
+    {% endblock %}
+        
+
+
+        
+    
+
+
+
+    
+
+
+      
+
+
+        
+    
+ 

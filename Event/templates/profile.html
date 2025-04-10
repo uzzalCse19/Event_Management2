@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block title %}My Profile - EventHub{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto p-6">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <!-- Profile Header -->
+        <div class="bg-blue-600 p-6 text-white">
+            <div class="flex items-center space-x-4">
+                <div class="w-20 h-20 rounded-full bg-blue-700 flex items-center justify-center text-3xl font-bold">
+                    {{ user.username|first|upper }}
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold">{{ user.username }}</h1>
+                    <p class="text-blue-100">{{ user.email }}</p>
+                    <p class="text-blue-100 mt-1">
+                        Member since {{ user.date_joined|date:"F Y" }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="p-6">
+            <section class="mb-8">
+                <h2 class="text-xl font-semibold mb-4 border-b pb-2">
+                    <i class="fas fa-calendar-check mr-2"></i>My Upcoming Events
+                </h2>
+                
+                {% if upcoming_events %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% for event in upcoming_events %}
+                    <div class="border rounded-lg p-4 hover:shadow-md transition">
+                        <h3 class="font-bold text-lg">{{ event.name }}</h3>
+                        <p class="text-gray-600">
+                            <i class="fas fa-calendar-day mr-2"></i>
+                            {{ event.date|date:"F j, Y" }} at {{ event.time|time:"g:i a" }}
+                        </p>
+
+                        <p class="text-gray-600">
+                            <i class="fas fa-map-marker-alt mr-2"></i>
+                            {{ event.location }}
+                        </p>
+                        <div class="mt-2">
+                            <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                                {{ rsvp_statuses.event.id }}
+                            </span>
+                            <a href="{% url 'event_detail' event.id %}" 
+                               class="text-blue-600 hover:underline ml-2">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-gray-500">
+                    You don't have any upcoming events. 
+                    <a href="{% url 'event_list' %}" class="text-blue-600 hover:underline">
+                        Browse events
+                    </a>
+                </p>
+                {% endif %}
+            </section>
+            <section class="mb-8">
+                <h2 class="text-xl font-semibold mb-4 border-b pb-2">
+                    <i class="fas fa-history mr-2"></i>Past Events
+                </h2>
+                
+                {% if past_events %}
+                <div class="space-y-2">
+                    {% for event in past_events %}
+                    <div class="flex justify-between items-center border-b py-2">
+                        <div>
+                            <h3 class="font-medium">{{ event.name }}</h3>
+                            <p class="text-sm text-gray-500">
+                                {{ event.date|date:"F j, Y" }} • {{ event.location }}
+                            </p>
+                        </div>
+                        <a href="{% url 'event_detail' event.id %}" 
+                           class="text-blue-600 hover:underline">
+                            View
+                        </a>
+                    </div>
+                    {% endfor %}
+
+
+                </div>
+                {% else %}
+                <p class="text-gray-500">
+                    You haven't attended any events yet.
+                </p>
+                {% endif %}
+            </section>
+
+            <section>
+                <h2 class="text-xl font-semibold mb-4 border-b pb-2">
+                    <i class="fas fa-cog mr-2"></i>Account Settings
+                </h2>
+                <div class="space-y-2">
+            
+                    <a href="{% url 'sign-out' %}" 
+                       class="block px-4 py-2 border rounded hover:bg-red-100 text-red-600 transition">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </a>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+
+ 
+
+
+
+

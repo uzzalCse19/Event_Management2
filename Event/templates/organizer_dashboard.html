@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Organizer Dashboard{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <h1 class="text-3xl font-bold">🎯 Organizer Dashboard</h1>
+    <div class="bg-white p-6 rounded-lg shadow">  <!-- Removed dark:bg-gray-800 -->
+        <h2 class="text-xl font-semibold mb-4">📅 Your Events</h2>
+        <a href="{% url 'create_event' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+            + Create Event
+        </a>
+        <ul class="mt-4 space-y-2">
+            {% for event in events %}
+                <li class="border p-3 rounded flex justify-between items-center">
+                    <div>
+                        <strong>{{ event.name }}</strong> - {{ event.date|date:"F j, Y" }} at {{ event.time|time:"g:i a" }}
+                    </div>
+                    <div class="space-x-2">
+                        <a href="{% url 'update_event' event.id %}" class="text-yellow-500 hover:underline">Edit</a>
+                        <a href="{% url 'delete_event' event.id %}" class="text-red-500 hover:underline">Delete</a>
+                    </div>
+                </li>
+            {% empty %}
+
+
+            <li>No events found.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow">  <!-- Removed dark:bg-gray-800 -->
+        <h2 class="text-xl font-semibold mb-4">🏷️ Categories</h2>
+        <a href="{% url 'create_category' %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+            + Add Category
+        </a>
+
+        <ul class="mt-4 space-y-2">
+            {% for category in categories %}
+                <li class="border p-3 rounded flex justify-between items-center">
+                    <div>
+                        <strong>{{ category.name }}</strong>
+                    </div>
+                    <div class="space-x-2">
+                        <a href="{% url 'update_category' category.id %}" class="text-yellow-500 hover:underline">Edit</a>
+                        <a href="{% url 'delete_category' category.id %}" class="text-red-500 hover:underline">Delete</a>
+                    </div>
+                </li>
+            {% empty %}
+                <li>No categories found.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+
+
+
+
+  
+    

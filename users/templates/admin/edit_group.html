@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}Edit Group - Admin{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto p-6">
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">Edit Group: {{ group.name }}</h1>
+            <a href="{% url 'group-list' %}" 
+               class="text-gray-600 hover:text-gray-800">
+                <i class="fas fa-arrow-left mr-1"></i> Back to Groups
+            </a>
+        </div>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="mb-6">
+                <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    Group Name
+                </label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                    <div class="mt-1 text-sm text-red-600">
+                        {{ form.name.errors }}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Permissions
+                </label>
+                <div class="border rounded-md divide-y divide-gray-200">
+                    {% for key, group_data in grouped_permissions.items %}
+                    <div class="p-4">
+                        <h3 class="font-medium text-gray-900 mb-2">
+                            {{ group_data.app }} › {{ group_data.model }}
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                            {% for perm in group_data.perms %}
+                            <div class="flex items-start">
+                                <div class="flex items-center h-5">
+                                    <input id="perm-{{ perm.id }}" 
+                                           name="permissions" 
+                                           type="checkbox" 
+                                           value="{{ perm.id }}"
+                                           class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                                           {% if perm in group.permissions.all %}checked{% endif %}>
+                                </div>
+                                <label for="perm-{{ perm.id }}" class="ml-2 text-sm text-gray-700">
+                                    {{ perm.name }}
+                                    <span class="text-xs text-gray-500 block">{{ perm.codename }}</span>
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="flex justify-end space-x-4 pt-4 border-t border-gray-200">
+                <a href="{% url 'group-list' %}" 
+                   class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition">
+                    Cancel
+                </a>
+                <button type="submit" 
+                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+            Save Changes
+        </button>
+    </div>
+</form>
+</div>
+</div>
+{% endblock %}          
+         
+ 
+
+        
+           
+                     
+      

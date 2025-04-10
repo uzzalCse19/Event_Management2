@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">Event Participants</h1>
+        <div class="flex space-x-4">
+            {% if request.user.is_staff %}
+            <a href="{% url 'create_participant' %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition">
+                Add Participant
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="p-4 bg-gray-50 border-b">
+            <p class="text-gray-600">
+                Total Participants: <span class="font-semibold">{{ total_participants }}</span>
+            </p>
+        </div>
+        {% if participants %}
+        <div class="divide-y divide-gray-200">
+            {% for participant in participants %}
+            <div class="p-4 hover:bg-gray-50 transition">
+                <div class="flex items-start justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                            <span class="text-blue-600 font-bold text-lg">{{ participant.username|first|upper }}</span>
+                        </div>
+                        <div>
+
+                            <h3 class="font-bold text-lg">{{ participant.username }}</h3>
+                            <p class="text-gray-600">{{ participant.email }}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="flex space-x-4 text-sm">
+                            <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full">
+                                Going: {{ participant.going_count }}
+                            </span>
+                            <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full">
+                                Maybe: {{ participant.maybe_count }}
+                            </span>
+                            <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
+                                Total: {{ participant.total_events }}
+                            </span>
+       
+                        </div>
+                    </div>
+                </div>
+
+                {% if participant.total_events > 0 %}
+                <div class="mt-4 pl-16">
+                    <h4 class="text-sm font-semibold text-gray-500 mb-2">UPCOMING EVENTS:</h4>
+                    <div class="flex flex-wrap gap-2">
+                        {% for rsvp in participant.eventrsvp_set.all|slice:":5" %}
+                        <a href="{% url 'event_detail' rsvp.event.id %}" 
+                           class="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm flex items-center">
+                            {{ rsvp.event.name }}
+                            <span class="ml-1 text-xs text-gray-500">
+                                ({{ rsvp.get_status_display }})
+                            </span>
+                        </a>
+                        {% endfor %}
+                        {% if participant.total_events > 5 %}
+                        <span class="px-3 py-1 bg-gray-100 rounded-full text-sm">
+                            +{{ participant.total_events|add:"-5" }} more
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if request.user.is_staff %}
+                <div class="mt-4 text-right">
+                    <a href="{% url 'update_participant' participant.id %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition">
+                        Edit
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="p-8 text-center">
+            <p class="text-gray-500 text-lg">No participants found</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+
+
+
+
+
+                     
