@@ -15,11 +15,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = ['*']
 CSRF_TRUSTED_ORIGINS=['https://*.onrender.com','http://127.0.0.1:8000']
-CSRF_USER_MODEL='users.Customers'
+# CSRF_USER_MODEL='users.Customers'
 
 # Application definition
 AUTH_USER_MODEL='users.CustomUser'
@@ -63,6 +63,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -101,9 +102,9 @@ WSGI_APPLICATION = 'event_management.wsgi.application'
 # Replace the SQLite DATABASES configuration with PostgreSQL:
 DATABASES = {
     'default': dj_database_url.config(
-        # Replace this value with your local database's connection string.
         default='postgresql://event_management_mid_exam_ik8r_user:2LRNc2UItaAeijULlTkFWqHP2B14TXQh@dpg-d06ime49c44c73fja9tg-a.oregon-postgres.render.com/event_management_mid_exam_ik8r',
-        conn_max_age=600
+        conn_max_age=600,
+        ssl_require=True
     )
 }
 
