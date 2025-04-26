@@ -1,8 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.db.models import Count, Q
+from django.db.models import Count, Q,Case,When,IntegerField,Prefetch
 from .models import Event, Category,EventRSVP
-from django.contrib.auth.models import User,Group
-from .forms import EventForm,StyledFormMixin,CategoryForm,ParticipantForm 
+from django.contrib.auth.models import Group
+from .forms import EventForm,CategoryForm,ParticipantForm 
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required,permission_required,user_passes_test
 from django.contrib import messages
@@ -14,8 +14,14 @@ from django.core.mail import send_mail
 from django.conf import settings
 from .forms import ParticipantUpdateForm
 from django.shortcuts import render
-from django.db.models import Count, Case, When, IntegerField,Prefetch
+from django.views.generic import ListView
+from django.views.generic.edit import UpdateView,CreateView,DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.urls import reverse_lazy
+from django.views import View
+from django.contrib.auth import get_user_model
 
+User=get_user_model()
 
 def is_participant(user):
     return user.groups.filter(name='Participant').exists()
@@ -49,12 +55,33 @@ def home(request):
     return render(request, 'home.html', context)
 
 
-def event_list(request):
-    events=Event.objects.select_related('category').prefetch_related('participants').all()
-    if request.user.is_authenticated:
-        for event in events:
-            event.user_has_resvp=request.user in event.participants.all()
-    return render(request,'event_list.html',{'events':events})
+# def event_list(request):
+#     events=Event.objects.select_related('category').prefetch_related('participants').all()
+#     if request.user.is_authenticated:
+#         for event in events:
+#             event.user_has_resvp=request.user in event.participants.all()
+#     return render(request,'event_list.html',{'events':events})
+
+
+class EventListView(ListView):
+    model=Event
+    template_name='event_list.html'
+    context_object_name='events'
+
+    def get_queryset(self):
+        return Event.objects.select_related('category').prefetch_related('participants')
+    def get_context_data(self, **kwargs) :
+        context = super().get_context_data(**kwargs)
+        events=context['events']
+        user=self.request.user
+
+        if user.is_authenticated:
+            for event in events:
+                event.user_has_rsvp=user in event.participants.all()
+        return context
+    
+
+
     
 
 def event_detail(request,pk):
@@ -104,28 +131,51 @@ def create_event(request):
 
 
 
-@login_required
-@permission_required("Event.change_event", login_url='no-permission')
-def update_event(request, pk):
-    event = get_object_or_404(Event, pk=pk)
-    if request.method == 'POST':
-        form = EventForm(request.POST, instance=event)
-        if form.is_valid():
-            updated_event = form.save()
-            messages.success(request, f'Event "{updated_event.name}" has been updated successfully!')
-            return redirect('event_list')
-        else:
-            messages.error(request, 'Please correct the errors below.')
-    else:
-        form = EventForm(instance=event)
-    context = {
-        'form': form,
-        'categories': Category.objects.all(),
-        'event': event,  
-        'is_update': True  
-    }
-    return render(request, 'event_form.html', context)
+# @login_required
+# @permission_required("Event.change_event", login_url='no-permission')
+# def update_event(request, pk):
+#     event = get_object_or_404(Event, pk=pk)
+#     if request.method == 'POST':
+#         form = EventForm(request.POST, instance=event)
+#         if form.is_valid():
+#             updated_event = form.save()
+#             messages.success(request, f'Event "{updated_event.name}" has been updated successfully!')
+#             return redirect('event_list')
+#         else:
+#             messages.error(request, 'Please correct the errors below.')
+#     else:
+#         form = EventForm(instance=event)
+#     context = {
+#         'form': form,
+#         'categories': Category.objects.all(),
+#         'event': event,  
+#         'is_update': True  
+#     }
+#     return render(request, 'event_form.html', context)
 
+class EventUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    model = Event
+    form_class = EventForm
+    template_name = 'event_form.html'
+    context_object_name = 'event'
+    permission_required = 'Event.change_event' 
+    login_url = 'no-permission'
+      
+    def get_success_url(self):
+        return reverse_lazy('event_list')
+    def form_valid(self, form):
+        updated_event = form.save()
+        messages.success(self.request, f'Event "{updated_event.name}" has been updated successfully!')
+        return super().form_valid(form)
+    def form_invalid(self, form):
+        messages.error(self.request, 'Please correct the errors below.')
+        return super().form_invalid(form)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+        context['is_update'] = True
+        return context
+    
 
 @login_required
 @permission_required("Event.change_event", login_url='no-permission')
@@ -135,21 +185,37 @@ def confirm_delete_event(request,event_id):
 
 
 
-@login_required
-@permission_required("Event.change_event", login_url='no-permission')
-def delete_event(request, event_id):
-    event = get_object_or_404(Event, id=event_id)
-    if not request.user.groups.filter(name__in=['Organizer', 'Admin']).exists():
-        messages.error(request, "You don't have permission to delete events.")
-        return redirect('event_detail', event_id=event.id)
-    if request.method == 'POST':
+# @login_required
+# @permission_required("Event.change_event", login_url='no-permission')
+# def delete_event(request, event_id):
+#     event = get_object_or_404(Event, id=event_id)
+#     if not request.user.groups.filter(name__in=['Organizer', 'Admin']).exists():
+#         messages.error(request, "You don't have permission to delete events.")
+#         return redirect('event_detail', event_id=event.id)
+#     if request.method == 'POST':
+#         event_name = event.name
+#         event.delete()
+#         messages.success(request, f"Event '{event_name}'deleted successfully.")
+#         return redirect('event_list')
+#     return redirect('event_detail', event_id=event.id)
+class EventDeleteView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = 'Event.change_event'
+    login_url = 'no-permission'
+
+    def post(self, request, event_id, *args, **kwargs):
+        event = get_object_or_404(Event, id=event_id)
+        if not request.user.groups.filter(name__in=['Organizer', 'Admin']).exists():
+             messages.error(request, "You don't have permission to delete events.")
+             return redirect('event_detail', event_id=event.id)
         event_name = event.name
         event.delete()
-        messages.success(request, f"Event '{event_name}'deleted successfully.")
+        messages.success(request, f"Event '{event_name}' deleted successfully.")
         return redirect('event_list')
-    return redirect('event_detail', event_id=event.id)
+    
+    def get(self, request, event_id, *args, **kwargs):
+        return redirect('event_detail', event_id=event_id)
 
-
+  
 @user_passes_test(is_organizer, login_url='no-permission') 
 def organizer_dashboard(request):
     events=Event.objects.all()
@@ -185,45 +251,90 @@ def category_list(request):
     return render(request,'category_list.html',{'categories':categories})
     
           
-@login_required
-@permission_required("Event.add_category", login_url='no-permission')
-def create_category(request):
-        if request.method == 'POST':
-            form = CategoryForm(request.POST)
-            if form.is_valid():
-                form.save()
-                return redirect('category_list')
-        else:
-            form = CategoryForm()
-        return render(request, 'category_form.html', {'form': form})
+# @login_required
+# @permission_required("Event.add_category", login_url='no-permission')
+# def create_category(request):
+#         if request.method == 'POST':
+#             form = CategoryForm(request.POST)
+#             if form.is_valid():
+#                 form.save()
+#                 return redirect('category_list')
+#         else:
+#             form = CategoryForm()
+#         return render(request, 'category_form.html', {'form': form})
 
+class CategoryCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    model = Category
+    form_class = CategoryForm
+    template_name = 'category_form.html'
+    success_url = reverse_lazy('category_list')
+    permission_required = 'Event.add_category'
+    login_url = 'no-permission'
+    
+    def form_valid(self, form):
+        messages.success(self.request, 'Category created successfully!')
+        return super().form_valid(form)
+    def form_invalid(self, form):
+        messages.error(self.request, 'Please correct the errors below.')
+        return super().form_invalid(form)
+
+            
+# @login_required
+# @permission_required("Event.change_category", login_url='no-permission')         
+# def update_category(request, pk): 
+#     category = get_object_or_404(Category, pk=pk) 
+#     if request.method == 'POST':
+#         form = CategoryForm(request.POST, instance=category)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('category_list')
+#     else:
+#         form = CategoryForm(instance=category)
+#     return render(request, 'category_form.html', {'form': form})
+
+class CategoryUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    model = Category
+    form_class = CategoryForm
+    template_name = 'category_form.html'
+    context_object_name = 'category'
+    success_url = reverse_lazy('category_list')
+    permission_required = 'Event.change_category'
+    login_url = 'no-permission'
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Category updated successfully!')
+        return super().form_valid(form)
+    def form_invalid(self, form):
+        messages.error(self.request, 'Please correct the errors below.')
+        return super().form_invalid(form)
+
+
+
+
+# @login_required
+# @permission_required("Event.delete_category", login_url='no-permission')
+# def delete_category(request, pk):
+#     category = get_object_or_404(Category, pk=pk)
+#     if request.method == 'POST':
+#         category.delete()
+#         return redirect('category_list')
+#     return render(request, 'category_confirm_delete.html', {'category': category})
+
+
+class CategoryDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    model = Category
+    template_name = 'category_confirm_delete.html'
+    success_url = reverse_lazy('category_list')
+    login_url = 'no-permission'
+
+    def delete(self, request, *args, **kwargs):
+        category = self.get_object()
+        messages.success(request, f"Category '{category.name}' has been deleted.")
+        return super().delete(request, *args, **kwargs)
 
     
-        
-        
-            
-@login_required
-@permission_required("Event.change_category", login_url='no-permission')         
-def update_category(request, pk): 
-    category = get_object_or_404(Category, pk=pk) 
-    if request.method == 'POST':
-        form = CategoryForm(request.POST, instance=category)
-        if form.is_valid():
-            form.save()
-            return redirect('category_list')
-    else:
-        form = CategoryForm(instance=category)
-    return render(request, 'category_form.html', {'form': form})
-   
+    
 
-@login_required
-@permission_required("Event.delete_category", login_url='no-permission')
-def delete_category(request, pk):
-    category = get_object_or_404(Category, pk=pk)
-    if request.method == 'POST':
-        category.delete()
-        return redirect('category_list')
-    return render(request, 'category_confirm_delete.html', {'category': category})
 
 @login_required
 @permission_required("auth.view_user", login_url='no-permission')
@@ -288,15 +399,28 @@ def update_participant(request, pk):
     return render(request, 'participant_form.html', {'form': form})
 
 
-@login_required
-@permission_required("auth.delete_user", login_url='no-permission')
-def delete_participant(request, pk):
-    user = get_object_or_404(User, pk=pk)
-    if request.method == 'POST':
-        user.delete()
-        messages.success(request, "User deleted successfully!")
-        return redirect('participant_list')
-    return render(request, 'participant_confirm_delete.html', {'user': user})
+# @login_required
+# @permission_required("auth.delete_user", login_url='no-permission')
+# def delete_participant(request, pk):
+#     user = get_object_or_404(User, pk=pk)
+#     if request.method == 'POST':
+#         user.delete()
+#         messages.success(request, "User deleted successfully!")
+#         return redirect('participant_list')
+#     return render(request, 'participant_confirm_delete.html', {'user': user})
+
+class ParticipantDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    model = User
+    template_name = 'participant_confirm_delete.html'
+    success_url = reverse_lazy('participant_list')
+    context_object_name = 'user'
+    permission_required = 'auth.delete_user'
+    login_url = 'no-permission'
+
+    def delete(self, request, *args, **kwargs):
+        user = self.get_object()
+        messages.success(request, f"User '{user.username}' deleted successfully!")
+        return super().delete(request, *args, **kwargs)
 
 
 

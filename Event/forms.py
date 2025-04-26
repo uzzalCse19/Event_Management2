@@ -1,7 +1,9 @@
 from django import forms
-from django.contrib.auth.models import User
 from .models import Event, Category
+from django.contrib.auth import get_user_model
 
+
+User=get_user_model()
 class StyledFormMixin:
     def add_common_attrs(self, field):
         field.widget.attrs.update({
@@ -40,9 +42,6 @@ class UserCreateForm(StyledFormMixin, UserCreationForm):
         model = User
         fields = ['username', 'first_name', 'last_name', 'email', 'password1', 'password2']
 
-from django import forms
-from django.contrib.auth.models import User
-from .models import Event
 
 class ParticipantForm(UserCreationForm):
     email = forms.EmailField(

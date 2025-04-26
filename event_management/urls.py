@@ -24,14 +24,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
-from Event.views import home,event_list
+from Event.views import home,EventListView
 from core.views import no_permission
 from django.conf import settings
 from django.conf.urls.static import static
 from debug_toolbar.toolbar import debug_toolbar_urls
 
 urlpatterns = [
-    path('',event_list, name='home'),
+    path('',EventListView.as_view(), name='home'),
     path('admin/', admin.site.urls),
     path('events/',include('Event.urls')),
     path('users/',include('users.urls')),
