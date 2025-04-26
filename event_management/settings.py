@@ -86,25 +86,25 @@ WSGI_APPLICATION = 'event_management.wsgi.application'
 
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME', default=''),
-        'USER': config('DB_USER', default=''),
-        'PASSWORD': config('DB_PASSWORD', default=''),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', cast=int)
-    }
-}
-
-
 # DATABASES = {
-#     'default': dj_database_url.config(
-#         # Replace this value with your local database's connection string.
-#         default='postgresql://event_manager_db_ttjp_user:4xGmTMpmNFAkk9jQYkgAazBfU36Cim4W@dpg-cvrud6be5dus73bceebg-a.oregon-postgres.render.com/event_manager_db_ttjp',
-#         conn_max_age=600
-#     )
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': config('DB_NAME', default=''),
+#         'USER': config('DB_USER', default=''),
+#         'PASSWORD': config('DB_PASSWORD', default=''),
+#         'HOST': config('DB_HOST', default='localhost'),
+#         'PORT': config('DB_PORT', cast=int)
+#     }
 # }
+
+
+DATABASES = {
+    'default': dj_database_url.config(
+        # Replace this value with your local database's connection string.
+        default='postgresql://event_management_mid_exam_user:mWedrvYFv9MC4rClMYMZcr77bHwmVi6O@dpg-d06i52hr0fns73flpgtg-a.oregon-postgres.render.com/event_management_mid_exam',
+        conn_max_age=600
+    )
+}
 
 
 
