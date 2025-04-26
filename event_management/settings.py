@@ -1,7 +1,7 @@
 
 from pathlib import Path
 from decouple import config
-import dj_database_url
+import dj_database_url 
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -98,14 +98,14 @@ WSGI_APPLICATION = 'event_management.wsgi.application'
 # }
 
 
+# Replace the SQLite DATABASES configuration with PostgreSQL:
 DATABASES = {
     'default': dj_database_url.config(
         # Replace this value with your local database's connection string.
-        default='postgresql://event_management_mid_exam_user:mWedrvYFv9MC4rClMYMZcr77bHwmVi6O@dpg-d06i52hr0fns73flpgtg-a.oregon-postgres.render.com/event_management_mid_exam',
+        default='postgresql://event_management_mid_exam_ik8r_user:2LRNc2UItaAeijULlTkFWqHP2B14TXQh@dpg-d06ime49c44c73fja9tg-a.oregon-postgres.render.com/event_management_mid_exam_ik8r',
         conn_max_age=600
     )
 }
-
 
 
 
