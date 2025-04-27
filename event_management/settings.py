@@ -39,6 +39,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "debug_toolbar.middleware.DebugToolbarMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -104,10 +105,10 @@ DATABASES = {
     'default': dj_database_url.config(
         default='postgresql://event_management_mid_exam_ik8r_user:2LRNc2UItaAeijULlTkFWqHP2B14TXQh@dpg-d06ime49c44c73fja9tg-a.oregon-postgres.render.com/event_management_mid_exam_ik8r',
         conn_max_age=600,
-        ssl_require=True
+        ssl_require=True,
+        engine='django.db.backends.postgresql_psycopg2'
     )
 }
-
 
 
 
@@ -150,17 +151,18 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 import os
 
-STATIC_ROOT = BASE_DIR / "staticfiles"  # এটা না থাকলে collectstatic crash করে
+STATIC_ROOT = BASE_DIR / "staticfiles"  
 
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-SECRET_KEY=config('SECRET_KEY')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -171,3 +173,5 @@ EMAIL_PORT = config('EMAIL_PORT')
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 FRONTEND_URL='http://127.0.0.1:8000'
+
+
