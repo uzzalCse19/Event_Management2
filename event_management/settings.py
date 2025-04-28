@@ -38,8 +38,6 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -47,6 +45,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "debug_toolbar.middleware.DebugToolbarMiddleware",  
 ]
 
 INTERNAL_IPS = [
@@ -100,6 +99,7 @@ WSGI_APPLICATION = 'event_management.wsgi.application'
 # }
 
 
+
 # Replace the SQLite DATABASES configuration with PostgreSQL:
 DATABASES = {
     'default': dj_database_url.config(
@@ -109,7 +109,6 @@ DATABASES = {
         engine='django.db.backends.postgresql_psycopg2'
     )
 }
-
 
 
 # Password validation
@@ -160,9 +159,10 @@ import os
 
 STATIC_ROOT = BASE_DIR / "staticfiles"  
 
-
+DEFAULT_FROM_EMAIL = config('EMAIL_HOST_USER')
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
+SECRET_KEY = config('SECRET_KEY')  
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
