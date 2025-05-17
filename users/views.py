@@ -210,7 +210,7 @@ class DeleteGroupView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         messages.success(self.request, f"Group '{group_name}' has been deleted successfully")
         return super().form_valid(form)
     def test_func(self):
-        return self.request.user.is_superuser  # অথবা is_admin(self.request.user)
+        return self.request.user.is_superuser  
     def handle_no_permission(self):
         return redirect('no-permission')
 

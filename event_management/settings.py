@@ -48,20 +48,38 @@ MIDDLEWARE = [
     "debug_toolbar.middleware.DebugToolbarMiddleware",  
 ]
 
-INTERNAL_IPS = [
-    # ...
-    "127.0.0.1",
-    # ...
-]
+# INTERNAL_IPS = [
+#     # ...
+#     "127.0.0.1",
+#     # ...
+# ]
 
 ROOT_URLCONF = 'event_management.urls'
+# settings.py
 
+# নিশ্চিত করুন DEBUG=True আছে development এর জন্য
+
+DEBUG = True
+
+# Static files সেটিংস
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
+# Debug Toolbar এর জন্য সেটিংস
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
+
+# TEMPLATES সেকশনে OPTIONS এর বানান ঠিক করুন (OPTIONS না OPTION)
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [],
         'APP_DIRS': True,
-        'OPTIONS': {
+        'OPTIONS': {  # এখানে OPTIONS (S সহ)
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
@@ -71,6 +89,21 @@ TEMPLATES = [
         },
     },
 ]
+# TEMPLATES = [
+#     {
+#         'BACKEND': 'django.template.backends.django.DjangoTemplates',
+#         'DIRS': [],
+#         'APP_DIRS': True,
+#         'OPTIONS': {
+#             'context_processors': [
+#                 'django.template.context_processors.debug',
+#                 'django.template.context_processors.request',
+#                 'django.contrib.auth.context_processors.auth',
+#                 'django.contrib.messages.context_processors.messages',
+#             ],
+#         },
+#     },
+# ]
 
 WSGI_APPLICATION = 'event_management.wsgi.application'
 
@@ -145,19 +178,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = '/static/'
 
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
-
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
-import os
-
-STATIC_ROOT = BASE_DIR / "staticfiles"  
 
 DEFAULT_FROM_EMAIL = config('EMAIL_HOST_USER')
 # Default primary key field type
