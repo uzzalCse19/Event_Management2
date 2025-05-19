@@ -321,16 +321,24 @@ class CategoryUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView
 #     return render(request, 'category_confirm_delete.html', {'category': category})
 
 
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.views.generic import DeleteView
+from django.urls import reverse_lazy
+from django.contrib import messages
+from .models import Category
+
 class CategoryDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = Category
     template_name = 'category_confirm_delete.html'
     success_url = reverse_lazy('category_list')
     login_url = 'no-permission'
+    permission_required = 'events.delete_category'  
 
     def delete(self, request, *args, **kwargs):
         category = self.get_object()
         messages.success(request, f"Category '{category.name}' has been deleted.")
         return super().delete(request, *args, **kwargs)
+
 
     
     
