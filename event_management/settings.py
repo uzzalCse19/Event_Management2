@@ -136,7 +136,7 @@ WSGI_APPLICATION = 'event_management.wsgi.application'
 # Replace the SQLite DATABASES configuration with PostgreSQL:
 DATABASES = {
     'default': dj_database_url.config(
-        default='postgresql://event_management_mid_exam_ik8r_user:2LRNc2UItaAeijULlTkFWqHP2B14TXQh@dpg-d06ime49c44c73fja9tg-a.oregon-postgres.render.com/event_management_mid_exam_ik8r',
+        default='postgresql://event_management_6_user:8L9uzRQgFZnoWNR7V9ghkTwk7sAue21b@dpg-d19fgore5dus738u6tb0-a.oregon-postgres.render.com/event_management_6',
         conn_max_age=600,
         ssl_require=True,
         engine='django.db.backends.postgresql_psycopg2'
