@@ -1,0 +1,64 @@
+{% comment %} <!-- profile_base.html -->
+{% extends "base.html" %}
+{% block title %}Profile{% endblock title %}
+{% block content %}
+<div class="bg-gray-100">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white shadow-md">
+      <div class="p-4">
+        <h2 class="text-xl font-semibold text-gray-800">Menu</h2>
+      </div>
+      <nav class="mt-6">
+        <a href="{% url 'profile' %}" 
+           class="block py-2 px-4 text-gray-700 hover:bg-gray-200 
+                  {% if request.resolver_match.url_name == 'profile' %}bg-gray-300 font-medium{% endif %}">
+          Profile
+        </a>
+        <a href="{% url 'edit_profile' %}" 
+           class="block py-2 px-4 text-gray-700 hover:bg-gray-200 
+                  {% if request.resolver_match.url_name == 'edit_profile' %}bg-gray-300 font-medium{% endif %}">
+          Edit Profile
+        </a>
+        <a href="{% url 'password_change' %}" 
+           class="block py-2 px-4 text-gray-700 hover:bg-gray-200 
+                  {% if request.resolver_match.url_name == 'password_change' %}bg-gray-300 font-medium{% endif %}">
+          Change Password
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Right Content -->
+    <main class="flex-1 p-8">
+      {% block profile_content %}{% endblock profile_content %}
+    </main>
+  </div>
+</div>
+{% endblock content %} {% endcomment %}
+
+{% comment %} 
+
+ {% extends "base.html" %}
+{% block title %}Profile{% endblock title %}
+{% block content %}
+<div class="bg-gray-100">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white shadow-md">
+      <div class="p-4">
+        <h2 class="text-xl font-semibold text-gray-800">Menu</h2>
+      </div>
+      <nav class="mt-6">
+        <a href="{% url 'profile' %}" class="block py-2 px-4 text-gray-700 hover:bg-gray-200 {% if request.resolver_match.url_name == 'profile' %}bg-gray-300{% endif %}">Profile</a>
+        <a href="{% url 'edit_profile' %}" class="block py-2 px-4 text-gray-700 hover:bg-gray-200 {% if request.resolver_match.url_name == 'edit_profile' %}bg-gray-300{% endif %}">Edit Profile</a>
+        <a href="{% url 'password_change' %}" class="block py-2 px-4 text-gray-700 hover:bg-gray-200 {% if request.resolver_match.url_name == 'password_change' %}bg-gray-300{% endif %}">Change Password</a>
+      </nav>
+    </aside>
+
+    <!-- Right Content -->
+    <main class="flex-1 p-8">
+      {% block profile_content %}{% endblock profile_content %}
+    </main>
+  </div>
+</div>
+{% endblock content %}  {% endcomment %}
