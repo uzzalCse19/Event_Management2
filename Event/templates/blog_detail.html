@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<article class="bg-white rounded-lg shadow-md p-6">
+    {% if post.cover %}
+    <img src="{{ post.cover.url }}" alt="{{ post.title }}" class="w-full h-64 object-cover mb-6 rounded">
+    {% endif %}
+    <h1 class="text-3xl font-bold mb-4">{{ post.title }}</h1>
+    <div class="flex items-center mb-6 text-gray-600">
+        <span class="mr-4">{{ post.published|date:"M d, Y" }}</span>
+        <span>Category: {{ post.category }}</span>
+    </div>
+    <div class="prose max-w-none">
+        {{ post.body|linebreaks }}
+    </div>
+    <div class="mt-6">
+        <a href="{% url 'blog_update' post.slug %}" class="bg-blue-500 text-white px-4 py-2 rounded mr-2">Edit</a>
+        <a href="{% url 'blog_delete' post.slug %}" class="bg-red-500 text-white px-4 py-2 rounded">Delete</a>
+    </div>
+</article>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold mb-6 text-red-600 dark:text-red-400">Delete Offer</h2>
+    
+    <p class="mb-6 text-gray-700 dark:text-gray-300">Are you sure you want to delete the offer "{{ offer.title }}"?</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        <div class="flex justify-end space-x-3">
+            <a href="{% url 'offers_list' %}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                Cancel
+            </a>
+            <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+                Delete
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

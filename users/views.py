@@ -125,10 +125,6 @@ def admin_dashboard(request):
     
     return render(request, 'admin/dashboard.html', {"users": users})
 
-
-
-
-
 @user_passes_test(is_admin, login_url='no-permission')
 def assign_role(request, user_id):
     user = get_object_or_404(User, id=user_id)  

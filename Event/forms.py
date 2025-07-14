@@ -93,3 +93,77 @@ class ParticipantUpdateForm(forms.ModelForm):
         model = User
         fields = ['username', 'email', 'events']
 
+
+from django import forms
+from .models import BlogPost
+from django.core.exceptions import ValidationError
+
+from django import forms
+from django.core.exceptions import ValidationError
+from .models import BlogPost
+
+class BlogPostForm(forms.ModelForm):
+    class Meta:
+        model = BlogPost
+        fields = ['title', 'cover', 'excerpt', 'body', 'category', 'published']
+        widgets = {
+            'published': forms.DateInput(attrs={'type': 'date'}),
+            'excerpt': forms.Textarea(attrs={'rows': 3}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Add maxlength attribute to category field (HTML validation)
+        self.fields['category'].widget.attrs.update({'maxlength': '50'})
+
+    def clean_category(self):
+        category = self.cleaned_data.get('category')
+        if len(category) > 50:
+            raise ValidationError(
+                "Category cannot exceed 50 characters. " 
+                f"Current length: {len(category)}"
+            )
+        return category
+
+    def clean_slug(self):
+        return self.instance.slug  # Preserve existing slug during updates
+
+from django import forms
+from .models import Offer
+
+class OfferForm(forms.ModelForm):
+    class Meta:
+        model = Offer
+        fields = '__all__'
+        widgets = {
+            'start_date': forms.DateInput(attrs={'type': 'date'}),
+            'end_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+ # forms.py
+from django import forms
+from .models import Testimonial
+
+class TestimonialForm(forms.ModelForm):
+    class Meta:
+        model = Testimonial
+        fields = '__all__'
+        widgets = {
+            'quote': forms.Textarea(attrs={'rows': 4}),
+            'rating': forms.NumberInput(attrs={'min': 1, 'max': 5}),
+        }       
+
+ # forms.py
+from django import forms
+from .models import NewsletterSubscriber
+
+class NewsletterForm(forms.ModelForm):
+    class Meta:
+        model = NewsletterSubscriber
+        fields = ['email']
+        widgets = {
+            'email': forms.EmailInput(attrs={
+                'placeholder': 'Your email address',
+                'class': 'flex-grow px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white'
+            })
+        }       

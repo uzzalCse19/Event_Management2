@@ -34,21 +34,23 @@
 </div>
 {% endif %}
 {% if events %}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {% for event in events %}
-        <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-            <h2 class="text-2xl font-semibold text-blue-600 mb-2">{{ event.name }}</h2>
-            <p class="text-gray-600 mb-2">{{ event.description }}</p>
-            <div class="space-y-2">
-                <p class="text-gray-600"><i class="fas fa-calendar-day mr-2"></i><strong>Date:</strong> {{ event.date }} at {{ event.time }}</p>
-                <p class="text-gray-600"><i class="fas fa-map-marker-alt mr-2"></i><strong>Location:</strong> {{ event.location }}</p>
-                <p class="text-gray-600"><i class="fas fa-tag mr-2"></i><strong>Category:</strong> {{ event.category.name }}</p>
-                <p class="text-gray-600"><i class="fas fa-users mr-2"></i><strong>Participants:</strong> {{ event.participants.count }}</p>
+        <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col h-full">
+            <h2 class="text-xl font-semibold text-blue-600 mb-2">{{ event.name }}</h2>
+            <p class="text-gray-600 mb-4 line-clamp-2 flex-grow">
+                {{ event.description|truncatechars:100 }}
+            </p>
+            <div class="space-y-2 text-sm">
+                <p class="text-gray-600 truncate"><i class="fas fa-calendar-day mr-2"></i>{{ event.date }} at {{ event.time }}</p>
+                <p class="text-gray-600 truncate"><i class="fas fa-map-marker-alt mr-2"></i>{{ event.location }}</p>
+                <p class="text-gray-600"><i class="fas fa-tag mr-2"></i>{{ event.category.name }}</p>
+                <p class="text-gray-600"><i class="fas fa-users mr-2"></i>{{ event.participants.count }} attending</p>
             </div>
             
             <div class="mt-4 flex justify-between items-center">
-                <a href="{% url 'event_detail' event.pk %}" class="text-blue-600 hover:text-blue-800 underline">
-                    <i class="fas fa-info-circle mr-2"></i>View Details
+                <a href="{% url 'event_detail' event.pk %}" class="text-blue-600 hover:text-blue-800 text-sm underline">
+                    <i class="fas fa-info-circle mr-1"></i>Details
                 </a>
                 
                 {% if user.is_authenticated %}
@@ -101,14 +103,3 @@
     </div>
 {% endif %}
 {% endblock %}
-
-
-
-
-
-
-
-
-   
-    
-

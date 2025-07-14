@@ -20,6 +20,25 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.urls import reverse_lazy
 from django.views import View
 from django.contrib.auth import get_user_model
+from users.views import is_admin
+from django.utils import timezone
+from datetime import datetime, timedelta
+import calendar
+
+# Add this at the top of views.py
+from django.utils.text import slugify
+
+# Then in BlogPostCreateView
+def form_valid(self, form):
+    # Ensure unique slug
+    slug = slugify(form.instance.title)
+    unique_slug = slug
+    num = 1
+    while BlogPost.objects.filter(slug=unique_slug).exists():
+        unique_slug = f'{slug}-{num}'
+        num += 1
+    form.instance.slug = unique_slug
+    return super().form_valid(form)
 
 User=get_user_model()
 
@@ -31,28 +50,28 @@ def is_organizer(user):
 
 
 
-def home(request):
-    upcoming_events = Event.objects.filter(
-        date__gte=timezone.now().date()
-    ).order_by('date', 'time')[:5]  
+# def home(request):
+#     upcoming_events = Event.objects.filter(
+#         date__gte=timezone.now().date()
+#     ).order_by('date', 'time')[:5]  
     
    
-    if request.user.is_authenticated:
-        user_rsvps = EventRSVP.objects.filter(
-            user=request.user,
-            event__date__gte=timezone.now().date()
-        ).select_related('event').order_by('event__date')[:3]
-    else:
-        user_rsvps = [] 
+#     if request.user.is_authenticated:
+#         user_rsvps = EventRSVP.objects.filter(
+#             user=request.user,
+#             event__date__gte=timezone.now().date()
+#         ).select_related('event').order_by('event__date')[:3]
+#     else:
+#         user_rsvps = [] 
     
     
-    recent_events = Event.objects.order_by('-id')[:3]
-    context = {
-        'upcoming_events': upcoming_events,
-        'user_rsvps': user_rsvps,
-        'recent_events': recent_events,
-    }
-    return render(request, 'home.html', context)
+#     recent_events = Event.objects.order_by('-id')[:3]
+#     context = {
+#         'upcoming_events': upcoming_events,
+#         'user_rsvps': user_rsvps,
+#         'recent_events': recent_events,
+#     }
+#     return render(request, 'home.html', context)
 
 
 # def event_list(request):
@@ -130,28 +149,6 @@ def create_event(request):
 
 
 
-
-# @login_required
-# @permission_required("Event.change_event", login_url='no-permission')
-# def update_event(request, pk):
-#     event = get_object_or_404(Event, pk=pk)
-#     if request.method == 'POST':
-#         form = EventForm(request.POST, instance=event)
-#         if form.is_valid():
-#             updated_event = form.save()
-#             messages.success(request, f'Event "{updated_event.name}" has been updated successfully!')
-#             return redirect('event_list')
-#         else:
-#             messages.error(request, 'Please correct the errors below.')
-#     else:
-#         form = EventForm(instance=event)
-#     context = {
-#         'form': form,
-#         'categories': Category.objects.all(),
-#         'event': event,  
-#         'is_update': True  
-#     }
-#     return render(request, 'event_form.html', context)
 
 class EventUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Event
@@ -251,17 +248,6 @@ def category_list(request):
     return render(request,'category_list.html',{'categories':categories})
     
           
-# @login_required
-# @permission_required("Event.add_category", login_url='no-permission')
-# def create_category(request):
-#         if request.method == 'POST':
-#             form = CategoryForm(request.POST)
-#             if form.is_valid():
-#                 form.save()
-#                 return redirect('category_list')
-#         else:
-#             form = CategoryForm()
-#         return render(request, 'category_form.html', {'form': form})
 
 class CategoryCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Category
@@ -307,18 +293,6 @@ class CategoryUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView
     def form_invalid(self, form):
         messages.error(self.request, 'Please correct the errors below.')
         return super().form_invalid(form)
-
-
-
-
-# @login_required
-# @permission_required("Event.delete_category", login_url='no-permission')
-# def delete_category(request, pk):
-#     category = get_object_or_404(Category, pk=pk)
-#     if request.method == 'POST':
-#         category.delete()
-#         return redirect('category_list')
-#     return render(request, 'category_confirm_delete.html', {'category': category})
 
 
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
@@ -407,16 +381,6 @@ def update_participant(request, pk):
     return render(request, 'participant_form.html', {'form': form})
 
 
-# @login_required
-# @permission_required("auth.delete_user", login_url='no-permission')
-# def delete_participant(request, pk):
-#     user = get_object_or_404(User, pk=pk)
-#     if request.method == 'POST':
-#         user.delete()
-#         messages.success(request, "User deleted successfully!")
-#         return redirect('participant_list')
-#     return render(request, 'participant_confirm_delete.html', {'user': user})
-
 class ParticipantDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = User
     template_name = 'participant_confirm_delete.html'
@@ -470,3 +434,247 @@ def send_rsvp_email(sender, instance, created, **kwargs):
         recipient_list = [instance.user.email]
         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list)
 
+
+
+
+from django.utils import timezone
+from django.views.generic import TemplateView
+from Event.models import Event, EventRSVP,Offer,BlogPost,Testimonial
+
+
+from django.views.generic import TemplateView
+from django.utils import timezone
+from .models import Event, EventRSVP, Offer, BlogPost, Testimonial
+
+from django.views.generic import TemplateView
+from django.utils import timezone
+from .models import Event, EventRSVP, Offer, BlogPost, Testimonial
+
+class HomeView(TemplateView):
+    template_name = "home.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        today = timezone.now().date()
+        current_month = today.month
+        
+        # Generate dynamic upcoming months (current + next 4)
+        upcoming_months = []
+        for i in range(5):  # Current month + next 4 months
+            month_num = (current_month - 1 + i) % 12 + 1
+            month_name = calendar.month_name[month_num]
+            upcoming_months.append({
+                'num': str(month_num),
+                'name': month_name[:3]  # Short name (Jun, Jul, etc)
+            })
+        
+        context['current_month'] = current_month
+        context['upcoming_months'] = upcoming_months
+        
+        # Rest of your context data remains the same
+        context['upcoming_events'] = Event.objects.filter(
+            date__gte=today
+        ).order_by('date', 'time')[:8]
+        
+        context['recent_events'] = Event.objects.order_by('-date')[:4]
+
+        # Marketing content
+        context['offers'] = Offer.objects.filter(
+            is_active=True,
+            start_date__lte=today,
+            end_date__gte=today
+        )[:3]
+        
+        context['blog_posts'] = BlogPost.objects.filter(
+            published__lte=today
+        ).order_by('-published')[:3]
+        
+        context['testimonials'] = Testimonial.objects.filter(
+            is_featured=True
+        )[:3]
+
+        # User-specific data
+        if self.request.user.is_authenticated:
+            context['user_rsvps'] = EventRSVP.objects.filter(
+                user=self.request.user,
+                event__date__gte=today
+            ).select_related('event').order_by('event__date')[:3]
+        else:
+            context['user_rsvps'] = None
+
+        return context
+    
+
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
+from django.utils.text import slugify
+from .models import BlogPost
+from .forms import BlogPostForm
+import uuid
+from django.contrib.auth.decorators import user_passes_test
+from django.utils.decorators import method_decorator
+class BlogPostListView(ListView):
+    model = BlogPost
+    template_name = 'blog_list.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+
+class BlogPostDetailView(DetailView):
+    model = BlogPost
+    template_name = 'blog_detail.html'
+    context_object_name = 'post'
+    slug_field = 'slug'
+
+
+@method_decorator(user_passes_test(is_admin, login_url='no-permission'), name='dispatch')
+class BlogPostCreateView(LoginRequiredMixin, CreateView):
+    model = BlogPost
+    form_class = BlogPostForm
+    template_name = 'blog_form.html'
+    success_url = reverse_lazy('blog_list')
+
+    def form_valid(self, form):
+        # Generate unique slug
+        slug = slugify(form.instance.title)
+        while BlogPost.objects.filter(slug=slug).exists():
+            slug = f"{slug}-{uuid.uuid4().hex[:4]}"
+        form.instance.slug = slug
+        return super().form_valid(form)
+    
+@method_decorator(user_passes_test(is_admin, login_url='no-permission'), name='dispatch')
+class BlogPostUpdateView(LoginRequiredMixin, UpdateView):
+    model = BlogPost
+    form_class = BlogPostForm
+    template_name = 'blog_form.html'
+    slug_field = 'slug'
+
+    def get_success_url(self):
+        return reverse_lazy('blog_detail', kwargs={'slug': self.object.slug})
+    
+@method_decorator(user_passes_test(is_admin, login_url='no-permission'), name='dispatch')
+class BlogPostDeleteView(LoginRequiredMixin, DeleteView):
+    model = BlogPost
+    template_name = 'blog_confirm_delete.html'
+    success_url = reverse_lazy('blog_list')
+    slug_field = 'slug'
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.generic import ListView
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .models import Offer
+from .forms import OfferForm
+
+
+@login_required
+def create_offer(request):
+    if request.method == 'POST':
+        form = OfferForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Offer created successfully!')
+            return redirect('offers_list')
+    else:
+        form = OfferForm()
+    return render(request, 'offer_form.html', {'form': form})
+
+@login_required
+def update_offer(request, pk):
+    offer = get_object_or_404(Offer, pk=pk)
+    if request.method == 'POST':
+        form = OfferForm(request.POST, instance=offer)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Offer updated successfully!')
+            return redirect('offers_list')
+    else:
+        form = OfferForm(instance=offer)
+    return render(request, 'offer_form.html', {'form': form})
+
+@login_required
+def delete_offer(request, pk):
+    offer = get_object_or_404(Offer, pk=pk)
+    if request.method == 'POST':
+        offer.delete()
+        messages.success(request, 'Offer deleted successfully!')
+        return redirect('offers_list')
+    return render(request, 'offer_confirm_delete.html', {'offer': offer})
+
+class OfferListView(ListView):
+    model = Offer
+    template_name = 'offer_list.html'
+    context_object_name = 'offers'
+    ordering = ['-start_date']
+    paginate_by = 10
+
+
+ # views.py
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.generic import ListView
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .models import Testimonial
+from .forms import TestimonialForm
+
+
+
+@login_required
+def create_testimonial(request):
+    if request.method == 'POST':
+        form = TestimonialForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Testimonial created successfully!')
+            return redirect('testimonials_list')
+    else:
+        form = TestimonialForm()
+    return render(request, 'testimonial_form.html', {'form': form})
+
+@login_required
+def update_testimonial(request, pk):
+    testimonial = get_object_or_404(Testimonial, pk=pk)
+    if request.method == 'POST':
+        form = TestimonialForm(request.POST, request.FILES, instance=testimonial)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Testimonial updated successfully!')
+            return redirect('testimonials_list')
+    else:
+        form = TestimonialForm(instance=testimonial)
+    return render(request, 'testimonial_form.html', {'form': form})
+
+@login_required
+def delete_testimonial(request, pk):
+    testimonial = get_object_or_404(Testimonial, pk=pk)
+    if request.method == 'POST':
+        testimonial.delete()
+        messages.success(request, 'Testimonial deleted successfully!')
+        return redirect('testimonials_list')
+    return render(request, 'testimonial_confirm_delete.html', {'testimonial': testimonial})
+
+class TestimonialListView(ListView):
+    model = Testimonial
+    template_name = 'testimonial_list.html'
+    context_object_name = 'testimonials'
+    ordering = ['-id']
+    paginate_by = 10   
+
+ # views.py
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import NewsletterForm
+
+def newsletter_subscribe(request):
+    if request.method == 'POST':
+        form = NewsletterForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Thanks for subscribing!')
+            return redirect(request.META.get('HTTP_REFERER', 'home'))
+        else:
+            # If email already exists
+            messages.info(request, 'You are already subscribed!')
+            return redirect(request.META.get('HTTP_REFERER', 'home'))
+    return redirect('home')   

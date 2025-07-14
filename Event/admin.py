@@ -32,3 +32,16 @@ class CategoryAdmin(admin.ModelAdmin):
     def description_short(self, obj):
         return obj.description[:50] + '...' if obj.description else ''
     description_short.short_description = 'Description'
+
+from django.contrib import admin
+from .models import BlogPost
+
+from django.contrib import admin
+from .models import BlogPost
+
+@admin.register(BlogPost)
+class BlogPostAdmin(admin.ModelAdmin):
+    list_display = ('title', 'slug', 'published', 'category')
+    list_filter = ('published', 'category')
+    search_fields = ('title', 'body')
+    prepopulated_fields = {'slug': ('title',)}

@@ -1,13 +1,13 @@
 from django.contrib import admin
 from django.urls import path, include
-from Event.views import EventListView
+from Event.views import HomeView
 from core.views import no_permission
 from django.conf import settings
 from django.conf.urls.static import static
 from debug_toolbar import urls as debug_toolbar_urls  # ইম্পোর্ট ঠিক করুন
 
 urlpatterns = [
-    path('', EventListView.as_view(), name='home'),
+    path('', HomeView.as_view(), name='event_list'),
     path('admin/', admin.site.urls),
     path('events/', include('Event.urls')),
     path('users/', include('users.urls')),
